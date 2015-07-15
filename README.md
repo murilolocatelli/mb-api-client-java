@@ -1,7 +1,5 @@
 ### English:
 
-<blockquote>
-
 # Mercado Bitcoin Java Client for API and Trade API
 
 This project is a client for Java developers to use Mercado Bitcoin Market Data API and Trade API. It uses a thrid party Json lib embedded to avoid lib dependencies. It is developed under proposed Maven file structure, using Checkstyle and PDM to enhance code quality. It is under MIT License (see **LICENSE.txt**).
@@ -30,14 +28,11 @@ This project can be easily imported in Eclipse using Maven plugin (or instead of
 
 Please, to ask for support or report any found issues, write to support@mercadobitcoin.net.
 
-</blockquote>
 
 
 <br/><br/>
 
 ### Português:
-
-<blockquote>
 
 # Mercado Bitcoin cliente Java Client para API e API de Negociações
 
@@ -58,7 +53,7 @@ Nós não nos responsabilizamos por qualquer problema, mal uso ou mal funcioname
  - **Terceiros:** pacote ``com.eclipsesource.json`` contém biblioteca de terceiros para converter dados Json. 
 
 
-### Importar no Eclipse/STS:WW
+### Importar no Eclipse/STS:
 
 Esse projeto pode ser facilmente importado no Eclipse utlizando o plugin do Maven (ou ao invés do Eclipse, utiliando STS, versão melhorada da SpringSource Inc. - Pivotal Software, Inc.) na opção  **Import... > Maven > Existing Maven Projects**.
 
@@ -66,5 +61,3 @@ Esse projeto pode ser facilmente importado no Eclipse utlizando o plugin do Mave
 ### Suporte e problemas:
 
 Por favor, para requisitar suporte or reportar algum problema encontrado, escreva para suporte@mercadobitcoin.net.
-
-</blockquote>
