@@ -34,7 +34,7 @@ Please, to ask for support or report any found issues, write to support@mercadob
 
 ### Português:
 
-# Mercado Bitcoin cliente Java Client para API e API de Negociações
+# Mercado Bitcoin cliente Java para API e API de Negociações
 
 Esse projeto é um cliente para desenvolvedores Java utilizarem a API de Dados de Mercado e API de Negociações do Mercado Bitcoin. It uses uma biblioteca de terceiros para conversão de Json, empacotada juntamente para evitar dependência de biblioteca. Foi desenvolvido na estrutura de arquivos proposta pelo Maven, utilizando também Checkstyle e PDM para aumentar a qualidade do código. Está sob a licença MIT (ver **LICENSE.txt**).
 
