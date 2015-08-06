@@ -37,7 +37,6 @@ public class TradeApiInfoTest extends AbstractBaseApiTest {
 		assertNotNull(info.getFunds().getBrlWithOpenOrders());
 		assertNotNull(info.getFunds().getBtcWithOpenOrders());
 		assertNotNull(info.getFunds().getLtcWithOpenOrders());
-		System.out.println(info);
 	}
 
 }
