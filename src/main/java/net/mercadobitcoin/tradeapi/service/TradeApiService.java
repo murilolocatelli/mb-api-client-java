@@ -58,7 +58,6 @@ public class TradeApiService extends AbstractApiService {
 		private RequestMethod(String requestMethod) {
 			this.value = requestMethod;
 		}
-		
 	}
 
 	/* ATTRIBUTES */
@@ -249,28 +248,28 @@ public class TradeApiService extends AbstractApiService {
 	private String invokeTapiMethod(JsonHashMap params) throws MercadoBitcoinException {
 		try {
 			String jsonParams = params.toUrlEncoded();
-	        String signature = generateSignature(jsonParams);
-	        URL url = generateTapiUrl();
+			String signature = generateSignature(jsonParams);
+			URL url = generateTapiUrl();
 			HttpURLConnection conn = getHttpPostConnection(url, signature);
-	        postRequestToServer(conn, params);
-	        return getResponseFromServer(conn);
-        } catch (IOException e) {
-            throw new MercadoBitcoinException("Internal error: Failure in connection.");
-        } catch (NoSuchAlgorithmException e) {
-            throw new MercadoBitcoinException("Internal error: Cryptography Algorithm not found.");
-        } catch (InvalidKeyException e) {
-            throw new MercadoBitcoinException("Invalid Key or Signature.");
-        }
+			postRequestToServer(conn, params);
+			return getResponseFromServer(conn);
+		} catch (IOException e) {
+			throw new MercadoBitcoinException("Internal error: Failure in connection.");
+		} catch (NoSuchAlgorithmException e) {
+			throw new MercadoBitcoinException("Internal error: Cryptography Algorithm not found.");
+		} catch (InvalidKeyException e) {
+			throw new MercadoBitcoinException("Invalid Key or Signature.");
+		}
 	}
 
 	private String generateSignature(String parameters) throws NoSuchAlgorithmException, InvalidKeyException {
-        SecretKeySpec key = null;
-        Mac mac = null;
+		SecretKeySpec key = null;
+		Mac mac = null;
 
-        key = new SecretKeySpec(mbTapiCodeBytes, ENCRYPT_ALGORITHM);
-        mac = Mac.getInstance(ENCRYPT_ALGORITHM);
-        mac.init(key);
-        String sign = encodeHexString(mac.doFinal(parameters.getBytes()));
+		key = new SecretKeySpec(mbTapiCodeBytes, ENCRYPT_ALGORITHM);
+		mac = Mac.getInstance(ENCRYPT_ALGORITHM);
+		mac.init(key);
+		String sign = encodeHexString(mac.doFinal(parameters.getBytes()));
 
 		return sign;
 	}
@@ -288,35 +287,35 @@ public class TradeApiService extends AbstractApiService {
 			conn = (HttpURLConnection) url.openConnection();
 		}
 		
-        conn.setRequestMethod(HttpMethod.POST.name());
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-    	conn.setRequestProperty("Key", mbTapiKey);
-    	conn.setRequestProperty("Sign", signature);
-        conn.setDoOutput(true);
+		conn.setRequestMethod(HttpMethod.POST.name());
+		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		conn.setRequestProperty("Key", mbTapiKey);
+		conn.setRequestProperty("Sign", signature);
+		conn.setDoOutput(true);
 
-        return conn;
+		return conn;
 	}
 
 	private void postRequestToServer(HttpURLConnection conn, JsonHashMap params) throws IOException {
-        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-        wr.write(params.toUrlEncoded());
-        wr.flush();
-        wr.close();
+		OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+		wr.write(params.toUrlEncoded());
+		wr.flush();
+		wr.close();
 	}
 
 	private String getResponseFromServer(HttpURLConnection conn) throws IOException {
 		String responseStr = null;
 		BufferedReader reader = null;
 		reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
+		StringBuilder sb = new StringBuilder();
+		String line = null;
 
-        while ((line = reader.readLine()) != null) {
-            sb.append(line + "\n");
-        }
+		while ((line = reader.readLine()) != null) {
+			sb.append(line + "\n");
+		}
 
-        responseStr = sb.toString();
-        return responseStr;
+		responseStr = sb.toString();
+		return responseStr;
 	}
 	
 }

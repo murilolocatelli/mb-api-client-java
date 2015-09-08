@@ -99,7 +99,7 @@ public class ApiService extends AbstractApiService {
 	 */
 	public Operation[] tradeList(CoinPair coinPair, long initialTid) throws MercadoBitcoinException {
 		if (initialTid < 0) {
-            throw new MercadoBitcoinException("Invalid initial tid.");
+			throw new MercadoBitcoinException("Invalid initial tid.");
 		}
 		return tradeList(coinPair, String.valueOf("?tid=" + initialTid));
 	}
@@ -112,7 +112,7 @@ public class ApiService extends AbstractApiService {
 	 */
 	public Operation[] tradeList(CoinPair coinPair, TimestampInterval interval) throws MercadoBitcoinException {
 		if (interval == null) {
-            throw new MercadoBitcoinException("Invalid date interval.");
+			throw new MercadoBitcoinException("Invalid date interval.");
 		}
 		
 		List<String> paths = new ArrayList<String>();
@@ -165,13 +165,13 @@ public class ApiService extends AbstractApiService {
 			URL url = generateApiUrl(params);
 			HttpsURLConnection conn = getHttpGetConnection(url);
 			getRequestToServer(conn);
-	        return getResponseFromServer(conn);
+			return getResponseFromServer(conn);
 		} catch (MalformedURLException e) {
-            throw new MercadoBitcoinException("Internal error: Invalid URL.");
-        } catch (IOException e) {
-        	e.printStackTrace();
-            throw new MercadoBitcoinException("Internal error: Failure in connection.");
-        }
+			throw new MercadoBitcoinException("Internal error: Invalid URL.");
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new MercadoBitcoinException("Internal error: Failure in connection.");
+		}
 	}
 	
 	private URL generateApiUrl(String params) throws MalformedURLException {
@@ -180,11 +180,11 @@ public class ApiService extends AbstractApiService {
 	}
 
 	private HttpsURLConnection getHttpGetConnection(URL url) throws IOException {
-        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-        conn.setRequestMethod(HttpMethod.GET.name());
-        conn.setRequestProperty("Content-Type", "application/json");
-        
-        return conn;
+		HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+		conn.setRequestMethod(HttpMethod.GET.name());
+		conn.setRequestProperty("Content-Type", "application/json");
+		
+		return conn;
 	}
 
 	private void getRequestToServer(HttpsURLConnection conn) throws IOException {
@@ -195,23 +195,23 @@ public class ApiService extends AbstractApiService {
 		String responseStr = null;
 		BufferedReader reader = null;
 		try {
-	        reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 		} catch (IOException e) {
 			if (conn.getErrorStream() != null) {
 				reader = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 			}
 		}
-        StringBuilder sb = new StringBuilder();
-        String line = null;
+		StringBuilder sb = new StringBuilder();
+		String line = null;
 
-        if (reader != null) {
-	        while ((line = reader.readLine()) != null) {
-	            sb.append(line + "\n");
-	        }
-        }
+		if (reader != null) {
+			while ((line = reader.readLine()) != null) {
+				sb.append(line + "\n");
+			}
+		}
 
-        responseStr = sb.toString();
-        return responseStr;
+		responseStr = sb.toString();
+		return responseStr;
 	}
 	
 }

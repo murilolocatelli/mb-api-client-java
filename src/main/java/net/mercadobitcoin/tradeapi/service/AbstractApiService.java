@@ -9,14 +9,16 @@ package net.mercadobitcoin.tradeapi.service;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLSocketFactory;
 
 import net.mercadobitcoin.common.exception.MercadoBitcoinException;
+import net.mercadobitcoin.common.security.HostnameVerifierBag;
+import net.mercadobitcoin.common.security.TrustManagerBag;
+import net.mercadobitcoin.common.security.TrustManagerBag.SslContextTrustManager;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 
 /**
  * Class base for HTTPS API.
@@ -24,12 +26,12 @@ import net.mercadobitcoin.common.exception.MercadoBitcoinException;
 public abstract class AbstractApiService {
 
 	private static final String DOMAIN = "https://www.mercadobitcoin.net";
-
+	
 	protected enum HttpMethod {
 		GET,
 		POST
 	}
-	
+
 	protected final boolean usingHttps() {
 		return DOMAIN.toUpperCase().startsWith("HTTPS");
 	}
@@ -41,12 +43,12 @@ public abstract class AbstractApiService {
 	public AbstractApiService() throws MercadoBitcoinException {
 		try {
 			if (usingHttps()) {
-				setSslContext();
+				setSslContext(SslContextTrustManager.DEFAULT);
 			}
 		} catch (KeyManagementException e) {
-            throw new MercadoBitcoinException("Internal error: Invalid SSL Connection.");
+			throw new MercadoBitcoinException("Internal error: Invalid SSL Connection.");
 		} catch (NoSuchAlgorithmException e) {
-            throw new MercadoBitcoinException("Internal error: Invalid SSL Algorithm.");
+			throw new MercadoBitcoinException("Internal error: Invalid SSL Algorithm.");
 		}
 	}
 	
@@ -56,33 +58,30 @@ public abstract class AbstractApiService {
 	
 	public abstract String getApiPath();
 	
-	private final void setSslContext() throws NoSuchAlgorithmException, KeyManagementException {
-		TrustManager[] trustAllCerts = new TrustManager[] {
-			new X509TrustManager() {
-	            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-	                return new java.security.cert.X509Certificate[0];
-	            }
-	
-	            public void checkClientTrusted(
-	                    java.security.cert.X509Certificate[] certs,
-	                    String authType) {
-	            }
-	
-	            public void checkServerTrusted(
-	                    java.security.cert.X509Certificate[] certs,
-	                    String authType) {
-	            }
-			}
-		};
-		
-        SSLContext sc = SSLContext.getInstance("SSL");
-        sc.init(null, trustAllCerts, new java.security.SecureRandom());
-        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-            public boolean verify(String arg0, SSLSession arg1) {
-                return true;
-            }
-        });
+	/**
+	 * Setup SSL Context to perform HTTPS communication.
+	 * 
+	 * @param sctm Selected way to validate certificates
+	 */
+	private final void setSslContext(SslContextTrustManager sctm)
+					throws NoSuchAlgorithmException, KeyManagementException {
+		// Enables protocols "TLSv1", "TLSv1.1" and "TLSv1.2"
+		SSLContext sc = SSLContext.getInstance("TLS");
+
+		switch (sctm) {
+			case BYPASS:
+				sc.init(null, TrustManagerBag.BYPASS_TRUST_MANAGER_LIST, TrustManagerBag.SECURE_RANDOM);
+				HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+				HttpsURLConnection.setDefaultHostnameVerifier(HostnameVerifierBag.BYPASS_HOSTNAME_VERIFIER);
+				break;
+			case DEFAULT:
+				HttpsURLConnection.setDefaultSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
+				break;
+			case CUSTOM:
+				throw new NotImplementedException();
+			default:
+				throw new NotImplementedException();
+		}
 	}
 	
 	protected static final String encodeHexString(byte[] bytes) {
@@ -98,8 +97,8 @@ public abstract class AbstractApiService {
 	}
 
 	protected static final long generateTonce() {
-        long unixTime = System.currentTimeMillis() / 1000L;
-        return unixTime;
+		long unixTime = System.currentTimeMillis() / 1000L;
+		return unixTime;
 	}
-    
+	
 }
