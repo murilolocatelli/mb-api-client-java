@@ -78,7 +78,7 @@ public class ApiService extends AbstractApiService {
 	public Orderbook orderbook(CoinPair coinPair) throws MercadoBitcoinException {
 		String url = assemblyUrl(coinPair, "orderbook");
 		JsonObject jsonObject = JsonObject.readFrom(invokeApiMethod(url));
-		return new Orderbook(jsonObject, CoinPair.BTC_BRL);
+		return new Orderbook(jsonObject, CoinPair.BRLBTC);
 	}
 	
 	/**
@@ -146,12 +146,18 @@ public class ApiService extends AbstractApiService {
 			throw new MercadoBitcoinException("Invalid coin pair.");
 		}
 
-		StringBuffer url = new StringBuffer(method);
+        StringBuffer url = new StringBuffer();
+
+        url.append(coinPair.getValue().replace("BRL", ""));
+		url.append("/");
+		url.append(method);
 		
-		if (coinPair.equals(CoinPair.LTC_BRL)) {
+		if (coinPair.equals(CoinPair.BRLLTC)) {
 			url.append("_litecoin");
 		}
 		url.append("/");
+
+
 		
 		for (String pathParam : pathParams) {
 			url.append(pathParam);

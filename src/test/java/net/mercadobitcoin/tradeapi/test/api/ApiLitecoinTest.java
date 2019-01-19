@@ -28,30 +28,30 @@ public class ApiLitecoinTest extends AbstractBaseApiTest {
 	
 	@Test
 	public void testLitecoinTicker() throws MercadoBitcoinException {
-		api.ticker24h(CoinPair.LTC_BRL);
-		api.tickerOfToday(CoinPair.LTC_BRL);
+		api.ticker24h(CoinPair.BRLLTC);
+		api.tickerOfToday(CoinPair.BRLLTC);
 	}
 	
 	@Test
 	public void testLitecoinOrderbooks() throws MercadoBitcoinException {
-		Orderbook litecoinOrderbook = api.orderbook(CoinPair.LTC_BRL);
+		Orderbook litecoinOrderbook = api.orderbook(CoinPair.BRLLTC);
 		assertNotNull(litecoinOrderbook);
 	}
 
 	@Test
 	public void testLitecoinTrades() throws MercadoBitcoinException {
-		api.tradeList(CoinPair.LTC_BRL);
+		api.tradeList(CoinPair.BRLLTC);
 	}
 	
 	@Test
 	public void testLitecoinTradesIni() throws MercadoBitcoinException {
-		api.tradeList(CoinPair.LTC_BRL, 1434136539);
+		api.tradeList(CoinPair.BRLLTC, 1434136539);
 	}
 	
 	@Test
 	public void testLitecoinTradesIniFin() throws MercadoBitcoinException {
 		TimestampInterval interval = new TimestampInterval(1434136539, 1434136930);
-		api.tradeList(CoinPair.LTC_BRL, interval);
+		api.tradeList(CoinPair.BRLLTC, interval);
 	}
 
 }

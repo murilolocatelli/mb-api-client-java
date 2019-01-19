@@ -6,12 +6,11 @@
 
 package net.mercadobitcoin.tradeapi.to;
 
+import com.eclipsesource.json.JsonObject;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
-
-import net.mercadobitcoin.tradeapi.to.Order.OrderType;
-
-import com.eclipsesource.json.JsonObject;
+import java.math.RoundingMode;
 
 /**
  * Operation of an order. Contains:
@@ -31,7 +30,7 @@ public class Operation implements Serializable {
 	private BigDecimal price;
 	private BigDecimal rate;
 	private Integer created;
-	private OrderType type;
+	private String type;
 
 	/**
 	 * Constructor based on JSON response.
@@ -40,11 +39,10 @@ public class Operation implements Serializable {
 	 */
 	public Operation(JsonObject jsonObject) {
 		this.created = Integer.valueOf(jsonObject.get("date").toString());
-		this.price = new BigDecimal(jsonObject.get("price").toString());
-		this.volume = new BigDecimal(jsonObject.get("amount").toString());
+		this.price = new BigDecimal(jsonObject.get("price").toString()).setScale(6, RoundingMode.FLOOR);
+		this.volume = new BigDecimal(jsonObject.get("amount").toString()).setScale(6, RoundingMode.FLOOR);
 		this.operationId = jsonObject.get("tid").asLong();
-		this.type = OrderType.valueOf(jsonObject.get("type").asString()
-				.toUpperCase());
+		this.type = jsonObject.get("type").asString();
 
 		this.rate = null;
 	}
@@ -57,9 +55,9 @@ public class Operation implements Serializable {
 	 */
 	public Operation(Long operationId, JsonObject jsonObject) {
 		this.operationId = operationId;
-		this.volume = new BigDecimal(jsonObject.get("volume").asString());
-		this.price = new BigDecimal(jsonObject.get("price").asString());
-		this.rate = new BigDecimal(jsonObject.get("rate").asString());
+		this.volume = new BigDecimal(jsonObject.get("volume").asString()).setScale(6, RoundingMode.FLOOR);
+		this.price = new BigDecimal(jsonObject.get("price").asString()).setScale(6, RoundingMode.FLOOR);
+		this.rate = new BigDecimal(jsonObject.get("rate").asString()).setScale(6, RoundingMode.FLOOR);
 		this.created = Integer.valueOf(jsonObject.get("created").asString());
 
 		this.type = null;
@@ -77,7 +75,7 @@ public class Operation implements Serializable {
 		return operationId;
 	}
 
-	public OrderType getType() {
+	public String getType() {
 		return type;
 	}
 

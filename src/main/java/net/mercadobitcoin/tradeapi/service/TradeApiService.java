@@ -1,11 +1,18 @@
-/**
- * under the MIT License (MIT)
- * Copyright (c) 2015 Mercado Bitcoin Servicos Digitais Ltda.
- * @see more details in /LICENSE.txt
- */
-
 package net.mercadobitcoin.tradeapi.service;
 
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
+import net.mercadobitcoin.common.exception.MercadoBitcoinException;
+import net.mercadobitcoin.tradeapi.to.AccountBalance;
+import net.mercadobitcoin.tradeapi.to.Order;
+import net.mercadobitcoin.tradeapi.to.Order.CoinPair;
+import net.mercadobitcoin.tradeapi.to.OrderFilter;
+import net.mercadobitcoin.tradeapi.to.TapiOrderbook;
+import net.mercadobitcoin.util.JsonHashMap;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,22 +26,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.HttpsURLConnection;
-
-import net.mercadobitcoin.common.exception.MercadoBitcoinException;
-import net.mercadobitcoin.tradeapi.to.AccountBalance;
-import net.mercadobitcoin.tradeapi.to.Order;
-import net.mercadobitcoin.tradeapi.to.Order.CoinPair;
-import net.mercadobitcoin.tradeapi.to.Order.OrderType;
-import net.mercadobitcoin.tradeapi.to.OrderFilter;
-import net.mercadobitcoin.tradeapi.to.Withdrawal;
-import net.mercadobitcoin.util.JsonHashMap;
-
-import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
-
 /**
  * Client service to communicate with Mercado Bitcoin Trade API.
  * Used to trade in Mercado Bitcoin.
@@ -42,20 +33,20 @@ import com.eclipsesource.json.JsonValue;
 public class TradeApiService extends AbstractApiService {
 
 	/* CONSTANTS */
-	private static final String TAPI_PATH = "/tapi/";
+	private static final String TAPI_PATH = "/tapi/v3/";
 	private static final String ENCRYPT_ALGORITHM = "HmacSHA512";
-	private static final String METHOD_PARAM = "method";
 
 	private enum RequestMethod {
-		GET_INFO("getInfo"),
-		ORDER_LIST("OrderList"),
-		TRADE("Trade"),
-		CANCEL_ORDER("CancelOrder"),
-		WITHDRAWAL_BITCOIN("withdrawal_bitcoin");
+		GET_ACCOUNT_INFO("get_account_info"),
+		LIST_ORDERBOOK("list_orderbook"),
+		LIST_ORDERS("list_orders"),
+		PLACE_BUY_ORDER("place_buy_order"),
+		PLACE_SELL_ORDER("place_sell_order"),
+		CANCEL_ORDER("cancel_order");
 		
 		public final String value;
 		
-		private RequestMethod(String requestMethod) {
+		RequestMethod(String requestMethod) {
 			this.value = requestMethod;
 		}
 	}
@@ -100,9 +91,19 @@ public class TradeApiService extends AbstractApiService {
 	 * @throws MercadoBitcoinException Generic exception to point the cause of any possible problem with the execution.
 	 */
 	public AccountBalance getAccountInfo() throws MercadoBitcoinException {
-		JsonObject jsonResponse = makeRequest(RequestMethod.GET_INFO.value);
-		AccountBalance response = new AccountBalance(jsonResponse);
-		return response;		
+		JsonObject jsonResponse = makeRequest(RequestMethod.GET_ACCOUNT_INFO.value);
+
+		return new AccountBalance(jsonResponse);
+	}
+
+	public TapiOrderbook listOrderBook(CoinPair coin) throws MercadoBitcoinException {
+		JsonHashMap params = new JsonHashMap();
+
+		params.put("coin_pair", coin.getValue());
+
+		JsonObject jsonResponse = makeRequest(params, RequestMethod.LIST_ORDERBOOK.value);
+
+		return new TapiOrderbook(jsonResponse.get("orderbook").asObject());
 	}
 
 	/**
@@ -123,25 +124,24 @@ public class TradeApiService extends AbstractApiService {
 		if (filter == null) {
 			throw new MercadoBitcoinException("Invalid filter.");
 		}
-		JsonObject jsonResponse = makeRequest(filter.toParams(), RequestMethod.ORDER_LIST.value);
+		JsonObject jsonResponse = makeRequest(filter.toParams(), RequestMethod.LIST_ORDERS.value);
 
 		List<Order> orders = new ArrayList<Order>();
 		for (String id : jsonResponse.names()) {
-			orders.add(new Order(Long.valueOf(id), jsonResponse.get(id).asObject()));
+			orders.add(new Order(jsonResponse.get(id).asObject()));
 		}
 		
 		return orders;
 	}
 	
-	private Order createOrder(Order order) throws MercadoBitcoinException {
+	private Order placeBuyOrder(Order order) throws MercadoBitcoinException {
 		if (order == null) {
 			throw new MercadoBitcoinException("Invalid order.");
 		}
 		
-		JsonObject jsonResponse = makeRequest(order.toParams(), RequestMethod.TRADE.value);
-		String orderId = jsonResponse.names().get(0);
-		Order response = new Order(Long.valueOf(orderId), jsonResponse.get(orderId).asObject());
-		return response;
+		JsonObject jsonResponse = makeRequest(order.toParams(), RequestMethod.PLACE_BUY_ORDER.value);
+
+		return new Order(jsonResponse.get("order").asObject());
 	}
 	
 	/**
@@ -153,14 +153,23 @@ public class TradeApiService extends AbstractApiService {
 	 * @return The information about the new Order.
 	 * @throws MercadoBitcoinException Generic exception to point any error with the execution.
 	 */
-	public Order createBuyOrder(CoinPair coin, String volume, String price) throws MercadoBitcoinException {
-		OrderType type = OrderType.BUY;
+	public Order placeBuyOrder(CoinPair coin, String volume, String price) throws MercadoBitcoinException {
 		BigDecimal decimalVolume = new BigDecimal(volume);
-		Order order = new Order(coin, type, decimalVolume, price);
-		return createOrder(order);
+		Order order = new Order(coin, decimalVolume, price);
+		return placeBuyOrder(order);
 		
 	}
-	
+
+	private Order placeSellOrder(Order order) throws MercadoBitcoinException {
+		if (order == null) {
+			throw new MercadoBitcoinException("Invalid order.");
+		}
+
+		JsonObject jsonResponse = makeRequest(order.toParams(), RequestMethod.PLACE_SELL_ORDER.value);
+
+		return new Order(jsonResponse.get("order").asObject());
+	}
+
 	/**
 	 * Create a Sell Order, with the details of it set in the parameters.
 	 * 
@@ -170,11 +179,10 @@ public class TradeApiService extends AbstractApiService {
 	 * @return The information about the new Order.
 	 * @throws MercadoBitcoinException Generic exception to point any error with the execution.
 	 */
-	public Order createSellOrder(CoinPair coin, String volume, String price) throws MercadoBitcoinException {
-		OrderType type = OrderType.SELL;
+	public Order placeSellOrder(CoinPair coin, String volume, String price) throws MercadoBitcoinException {
 		BigDecimal decimalVolume = new BigDecimal(volume);
-		Order order = new Order(coin, type, decimalVolume, price);
-		return createOrder(order);
+		Order order = new Order(coin, decimalVolume, price);
+		return placeSellOrder(order);
 		
 	}
 	
@@ -193,17 +201,17 @@ public class TradeApiService extends AbstractApiService {
 		JsonObject jsonResponse = makeRequest(order.toParams(), RequestMethod.CANCEL_ORDER.value);
 
 		String orderId = jsonResponse.names().get(0);
-		Order response = new Order(Long.valueOf(orderId), jsonResponse.get(orderId).asObject());
-		return response;
+
+		return new Order(jsonResponse.get("order").asObject());
 	}
 
 	/**
 	 * Performs a Bitcoin withdrawal to trusted address.
 	 * 
-	 * @param bitcoinAddress Bitcoin address that will receive the withdrawal
-	 * @param volume Amount that will be withdrawal
+	 * //@param bitcoinAddress Bitcoin address that will receive the withdrawal
+	 * //@param volume Amount that will be withdrawal
 	 */
-	public Withdrawal withdrawalBitcoin(String bitcoinAddress, BigDecimal volume) throws MercadoBitcoinException {
+	/*public Withdrawal withdrawalBitcoin(String bitcoinAddress, BigDecimal volume) throws MercadoBitcoinException {
 		if (bitcoinAddress == null) {
 			throw new MercadoBitcoinException("Invalid Bitcoin address.");
 		}
@@ -211,24 +219,24 @@ public class TradeApiService extends AbstractApiService {
 		if (volume == null || volume.compareTo(BigDecimal.ZERO) == -1) {
 			throw new MercadoBitcoinException("Invalid volume.");
 		}
-		
+
 		JsonHashMap params = new JsonHashMap();
 		params.put("bitcoin_address", bitcoinAddress);
 		params.put("volume", volume.toString());
-		
+
 		JsonObject jsonResponse = makeRequest(params, RequestMethod.WITHDRAWAL_BITCOIN.value);
 		Withdrawal withdrawal = new Withdrawal(jsonResponse, CoinPair.BTC_BRL);
-		
+
 		return withdrawal;
-	}
+	}*/
 	
 	private JsonObject makeRequest(String method) throws MercadoBitcoinException {
 		return makeRequest(new JsonHashMap(), method);
 	}
 	
 	private JsonObject makeRequest(JsonHashMap params, String method) throws MercadoBitcoinException {
-		params.put(METHOD_PARAM, method);
-		params.put("tonce", generateTonce());
+		params.put("tapi_method", method);
+		params.put("tapi_nonce", generateTonce());
 
 		String jsonResponse = invokeTapiMethod(params);
 		
@@ -237,18 +245,18 @@ public class TradeApiService extends AbstractApiService {
 		}
 		
 		JsonObject jsonObject = JsonObject.readFrom(jsonResponse);
-		if (jsonObject.get("success").asInt() == 0) {
-			throw new MercadoBitcoinException(jsonObject.get("error").asString());
+		if (jsonObject.get("status_code").asInt() != 100) {
+			throw new MercadoBitcoinException(jsonObject.get("error_message").asString());
 		}
 		
-		JsonValue returnData = jsonObject.get("return");
+		JsonValue returnData = jsonObject.get("response_data");
 		return (returnData == null) ? null : returnData.asObject();
 	}
 	
 	private String invokeTapiMethod(JsonHashMap params) throws MercadoBitcoinException {
 		try {
 			String jsonParams = params.toUrlEncoded();
-			String signature = generateSignature(jsonParams);
+			String signature = generateSignature(TAPI_PATH + "?" + jsonParams);
 			URL url = generateTapiUrl();
 			HttpURLConnection conn = getHttpPostConnection(url, signature);
 			postRequestToServer(conn, params);
@@ -289,8 +297,8 @@ public class TradeApiService extends AbstractApiService {
 		
 		conn.setRequestMethod(HttpMethod.POST.name());
 		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		conn.setRequestProperty("Key", mbTapiKey);
-		conn.setRequestProperty("Sign", signature);
+		conn.setRequestProperty("TAPI-ID", mbTapiKey);
+		conn.setRequestProperty("TAPI-MAC", signature);
 		conn.setDoOutput(true);
 
 		return conn;

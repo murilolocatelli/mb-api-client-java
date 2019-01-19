@@ -17,7 +17,6 @@ import net.mercadobitcoin.tradeapi.test.base.UserInfo;
 import net.mercadobitcoin.tradeapi.to.Order;
 import net.mercadobitcoin.tradeapi.to.Order.CoinPair;
 import net.mercadobitcoin.tradeapi.to.Order.OrderStatus;
-import net.mercadobitcoin.tradeapi.to.Order.OrderType;
 import net.mercadobitcoin.tradeapi.to.OrderFilter;
 
 import org.junit.BeforeClass;
@@ -34,9 +33,9 @@ public class TradeApiLitecoinTest extends AbstractBaseApiTest {
 
 	@Test
 	public void testListOrdersAllFilters() throws MercadoBitcoinException {
-		OrderFilter filter = new OrderFilter(CoinPair.LTC_BRL);
-		filter.setPair(CoinPair.LTC_BRL);
-		filter.setType(OrderType.SELL);
+		OrderFilter filter = new OrderFilter(CoinPair.BRLLTC);
+		filter.setPair(CoinPair.BRLLTC);
+		filter.setType(2);
 		filter.setStatus(OrderStatus.CANCELED);
 		filter.setFromId((long) 219323);
 		filter.setEndId((long) 2195243); 
@@ -49,7 +48,7 @@ public class TradeApiLitecoinTest extends AbstractBaseApiTest {
 	
 	@Test
 	public void testListOrdersAllFiltersNull() throws MercadoBitcoinException {
-		OrderFilter filter = new OrderFilter(CoinPair.LTC_BRL);
+		OrderFilter filter = new OrderFilter(CoinPair.BRLLTC);
 		filter.setPair(null);
 		filter.setType(null);
 		filter.setStatus(null);

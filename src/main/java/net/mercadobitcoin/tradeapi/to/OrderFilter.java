@@ -8,7 +8,6 @@ package net.mercadobitcoin.tradeapi.to;
 
 import net.mercadobitcoin.tradeapi.to.Order.CoinPair;
 import net.mercadobitcoin.tradeapi.to.Order.OrderStatus;
-import net.mercadobitcoin.tradeapi.to.Order.OrderType;
 
 /**
  * Filter object to be used on order list request.
@@ -18,7 +17,7 @@ public class OrderFilter extends TapiBase {
 	private static final long serialVersionUID = 6302408184251869680L;
 
 	private CoinPair pair;
-	private OrderType type;
+	private Integer type;
 	private OrderStatus status;
 	private Long fromId;
 	private Long endId;
@@ -51,13 +50,11 @@ public class OrderFilter extends TapiBase {
 	/**
 	 * @param type Set the Order Type ("buy" or "sell") filter.
 	 */
-	public void setType(OrderType type) { 
-		if (type != null) {
-			this.type = type;
-		}
+	public void setType(Integer type) {
+		this.type = type;
 	}
 	
-	public OrderType getType() {
+	public Integer getType() {
 		return type;
 	}
 

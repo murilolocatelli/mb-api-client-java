@@ -29,7 +29,7 @@ public class ApiBitcoinTest extends AbstractBaseApiTest {
 	
 	@Test
 	public void testTicker() throws MercadoBitcoinException {
-		Ticker tickerOfTheDay = api.tickerOfToday(CoinPair.BTC_BRL);
+		Ticker tickerOfTheDay = api.tickerOfToday(CoinPair.BRLBTC);
 		assertNotNull(tickerOfTheDay.getBuy());
 		assertNotNull(tickerOfTheDay.getDate());
 		assertNotNull(tickerOfTheDay.getHigh());
@@ -38,51 +38,51 @@ public class ApiBitcoinTest extends AbstractBaseApiTest {
 		assertNotNull(tickerOfTheDay.getSell());
 		assertNotNull(tickerOfTheDay.getVol());
 
-		Ticker ticker = api.ticker24h(CoinPair.BTC_BRL);
+		Ticker ticker = api.ticker24h(CoinPair.BRLBTC);
 		assertNotNull(ticker);
 	}
 	
 	@Test
 	public void testOrderbook() throws MercadoBitcoinException {
-		assertNotNull(api.orderbook(CoinPair.BTC_BRL));
+		assertNotNull(api.orderbook(CoinPair.BRLBTC));
 	}
 
 	@Test
 	public void testTrades() throws MercadoBitcoinException {
-		Operation[] operationList = api.tradeList(CoinPair.BTC_BRL);
+		Operation[] operationList = api.tradeList(CoinPair.BRLBTC);
 		assertNotNull(operationList);
 	}
 	
 	@Test
 	public void tradesListByTid() throws MercadoBitcoinException {
-		Operation[] operationList = api.tradeList(CoinPair.BTC_BRL);
+		Operation[] operationList = api.tradeList(CoinPair.BRLBTC);
 		assertNotNull(operationList);
 		Operation lastOperation = operationList[operationList.length - 1];
 
-		Operation[] operationListById = api.tradeList(CoinPair.BTC_BRL, lastOperation.getTid() - 1);
+		Operation[] operationListById = api.tradeList(CoinPair.BRLBTC, lastOperation.getTid() - 1);
 		assertNotNull(operationListById);
 	}
 	
 	@Test
 	public void testTradesIni() throws MercadoBitcoinException {
-		Operation[] operationList = api.tradeList(CoinPair.BTC_BRL);
+		Operation[] operationList = api.tradeList(CoinPair.BRLBTC);
 		assertNotNull(operationList);
 		Operation lastOperation = operationList[operationList.length - 1];
 
 		TimestampInterval interval = new TimestampInterval(lastOperation.getDate());
-		Operation[] operationListByInitialTimestamp = api.tradeList(CoinPair.BTC_BRL, interval);
+		Operation[] operationListByInitialTimestamp = api.tradeList(CoinPair.BRLBTC, interval);
 		assertNotNull(operationListByInitialTimestamp);
 	}
 	
 	@Test
 	public void testTradesIniFin() throws MercadoBitcoinException {
-		Operation[] operationList = api.tradeList(CoinPair.BTC_BRL);
+		Operation[] operationList = api.tradeList(CoinPair.BRLBTC);
 		assertNotNull(operationList);
 		Operation tenBehindOperation = operationList[operationList.length - 10];
 		Operation lastOperation = operationList[operationList.length - 1];
 
 		TimestampInterval interval = new TimestampInterval(tenBehindOperation.getDate(), lastOperation.getDate());
-		Operation[] tradesByIntervalTimestamp = api.tradeList(CoinPair.BTC_BRL, interval);
+		Operation[] tradesByIntervalTimestamp = api.tradeList(CoinPair.BRLBTC, interval);
 		assertNotNull(tradesByIntervalTimestamp);
 	}
 

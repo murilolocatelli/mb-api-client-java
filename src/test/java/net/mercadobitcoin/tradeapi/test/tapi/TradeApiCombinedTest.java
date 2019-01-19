@@ -6,12 +6,6 @@
 
 package net.mercadobitcoin.tradeapi.test.tapi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.List;
-
 import net.mercadobitcoin.common.exception.MercadoBitcoinException;
 import net.mercadobitcoin.tradeapi.service.ApiService;
 import net.mercadobitcoin.tradeapi.service.TradeApiService;
@@ -24,9 +18,12 @@ import net.mercadobitcoin.tradeapi.to.Order.CoinPair;
 import net.mercadobitcoin.tradeapi.to.Order.OrderStatus;
 import net.mercadobitcoin.tradeapi.to.OrderFilter;
 import net.mercadobitcoin.tradeapi.to.Orderbook;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public class TradeApiCombinedTest extends AbstractBaseApiTest {
 
@@ -41,12 +38,12 @@ public class TradeApiCombinedTest extends AbstractBaseApiTest {
 
 	@Test
 	public void testGetAndExecuteBuyOrder() throws MercadoBitcoinException {
-		Orderbook aux = api.orderbook(CoinPair.BTC_BRL);
+		Orderbook aux = api.orderbook(CoinPair.BRLBTC);
 		Order firstSellOrder = aux.getAsks()[0];
 		assertNotNull(firstSellOrder);
 		
-		Order buyOrder = tapi.createBuyOrder(firstSellOrder.getPair(),
-						Order.MINIMUM_VOLUME, firstSellOrder.getPrice());
+		Order buyOrder = tapi.placeBuyOrder(firstSellOrder.getCoin_pair(),
+						Order.MINIMUM_VOLUME, firstSellOrder.getLimit_price());
 		
 		assertNotNull(buyOrder);
 		
@@ -56,12 +53,12 @@ public class TradeApiCombinedTest extends AbstractBaseApiTest {
 	
 	@Test
 	public void testGetAndExecuteSellOrder() throws MercadoBitcoinException {
-		Orderbook aux = api.orderbook(CoinPair.BTC_BRL);
+		Orderbook aux = api.orderbook(CoinPair.BRLBTC);
 		Order firstBuyOrder = aux.getBids()[0];
 		assertNotNull(firstBuyOrder);
 			
-		Order sellOrder = tapi.createSellOrder(firstBuyOrder.getPair(),
-						Order.MINIMUM_VOLUME, firstBuyOrder.getPrice());
+		Order sellOrder = tapi.placeSellOrder(firstBuyOrder.getCoin_pair(),
+						Order.MINIMUM_VOLUME, firstBuyOrder.getLimit_price());
 		
 		List<Operation> operations = sellOrder.getOperations();
 		assertNotNull(operations);	
@@ -71,7 +68,7 @@ public class TradeApiCombinedTest extends AbstractBaseApiTest {
 	public void testClearAllOrders() throws MercadoBitcoinException {
 		tapi.getAccountInfo();
 		
-		OrderFilter filter = new OrderFilter(CoinPair.BTC_BRL);
+		OrderFilter filter = new OrderFilter(CoinPair.BRLBTC);
 		filter.setStatus(OrderStatus.ACTIVE);
 		
 		List<Order> orderList = tapi.listOrders(filter);
@@ -82,7 +79,7 @@ public class TradeApiCombinedTest extends AbstractBaseApiTest {
 			assertNotNull(cancelOrder);
 			assertEquals(cancelOrder.getStatus(),  OrderStatus.CANCELED.getValue());
 		}
-		filter = new OrderFilter(CoinPair.LTC_BRL);
+		filter = new OrderFilter(CoinPair.BRLLTC);
 		filter.setStatus(OrderStatus.ACTIVE);
 		
 		orderList = tapi.listOrders(filter);
@@ -99,10 +96,10 @@ public class TradeApiCombinedTest extends AbstractBaseApiTest {
 	
 	@Test
 	public void testCreateFindAndCancelOrder() throws MercadoBitcoinException, InterruptedException {
-		Order buyOrder = tapi.createBuyOrder(CoinPair.BTC_BRL, Order.MINIMUM_VOLUME, LOW_PRICE);
+		Order buyOrder = tapi.placeBuyOrder(CoinPair.BRLBTC, Order.MINIMUM_VOLUME, LOW_PRICE);
 		assertNotNull(buyOrder);
 		
-		OrderFilter filter = new OrderFilter(CoinPair.BTC_BRL);
+		OrderFilter filter = new OrderFilter(CoinPair.BRLBTC);
 		filter.setStatus(OrderStatus.ACTIVE);
 
 		List<Order> orderList = tapi.listOrders(filter);

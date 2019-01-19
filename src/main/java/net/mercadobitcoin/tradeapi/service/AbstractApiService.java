@@ -17,7 +17,7 @@ import net.mercadobitcoin.common.exception.MercadoBitcoinException;
 import net.mercadobitcoin.common.security.HostnameVerifierBag;
 import net.mercadobitcoin.common.security.TrustManagerBag;
 import net.mercadobitcoin.common.security.TrustManagerBag.SslContextTrustManager;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+//import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 
 /**
@@ -78,9 +78,9 @@ public abstract class AbstractApiService {
 				HttpsURLConnection.setDefaultSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
 				break;
 			case CUSTOM:
-				throw new NotImplementedException();
+//				throw new NotImplementedException();
 			default:
-				throw new NotImplementedException();
+//				throw new NotImplementedException();
 		}
 	}
 	
@@ -97,7 +97,7 @@ public abstract class AbstractApiService {
 	}
 
 	protected static final long generateTonce() {
-		long unixTime = System.currentTimeMillis() / 1000L;
+		long unixTime = System.currentTimeMillis();
 		return unixTime;
 	}
 	

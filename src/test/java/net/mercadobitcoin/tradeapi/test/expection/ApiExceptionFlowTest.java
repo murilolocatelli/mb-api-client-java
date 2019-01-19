@@ -28,13 +28,13 @@ public class ApiExceptionFlowTest extends AbstractBaseApiTest {
 	
 	@Test(expected = MercadoBitcoinException.class)
 	public void testTradesIniInvalid() throws MercadoBitcoinException {
-		api.tradeList(CoinPair.BTC_BRL, null);
+		api.tradeList(CoinPair.BRLBTC, null);
 	}
 
 	@Test(expected = MercadoBitcoinException.class)
 	public void testTradesIniFinInvalid1() throws MercadoBitcoinException {
 		TimestampInterval interval = new TimestampInterval(Calendar.getInstance().getTime(), null);
-		api.tradeList(CoinPair.BTC_BRL, interval);
+		api.tradeList(CoinPair.BRLBTC, interval);
 	}
 	
 	@Test(expected = MercadoBitcoinException.class)
@@ -42,30 +42,30 @@ public class ApiExceptionFlowTest extends AbstractBaseApiTest {
 		Calendar toDate = Calendar.getInstance();
 		toDate.add(Calendar.YEAR, -1);
 		TimestampInterval interval = new TimestampInterval(Calendar.getInstance().getTime(), toDate.getTime());
-		api.tradeList(CoinPair.BTC_BRL, interval);
+		api.tradeList(CoinPair.BRLBTC, interval);
 	}
 
 	@Test(expected = MercadoBitcoinException.class)
 	public void testLitecoinTradesIniInvalid() throws MercadoBitcoinException {
-		api.tradeList(CoinPair.LTC_BRL, -1 * TIMESTAMP_TEST_VALUE);
+		api.tradeList(CoinPair.BRLLTC, -1 * TIMESTAMP_TEST_VALUE);
 	}
 
 	@Test(expected = MercadoBitcoinException.class)
 	public void testLitecoinTradesFinInvalid() throws MercadoBitcoinException {
 		TimestampInterval interval = new TimestampInterval(TIMESTAMP_TEST_VALUE, -1 * TIMESTAMP_TEST_VALUE);
-		api.tradeList(CoinPair.LTC_BRL, interval);
+		api.tradeList(CoinPair.BRLLTC, interval);
 	}
 	
 	@Test(expected = MercadoBitcoinException.class)
 	public void testLitecoinTradesIniFinInvalid1() throws MercadoBitcoinException {
 		TimestampInterval interval = new TimestampInterval(-1 * TIMESTAMP_TEST_VALUE, -1 * TIMESTAMP_TEST_VALUE);
-		api.tradeList(CoinPair.LTC_BRL, interval);
+		api.tradeList(CoinPair.BRLLTC, interval);
 	}
 	
 	@Test(expected = MercadoBitcoinException.class)
 	public void testLitecoinTradesIniFinInvalid2() throws MercadoBitcoinException {
 		TimestampInterval interval = new TimestampInterval(TIMESTAMP_TEST_VALUE + 1, TIMESTAMP_TEST_VALUE);
-		api.tradeList(CoinPair.LTC_BRL, interval);
+		api.tradeList(CoinPair.BRLLTC, interval);
 	}
 
 }

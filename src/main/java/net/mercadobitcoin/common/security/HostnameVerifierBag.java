@@ -8,7 +8,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 
-import sun.security.util.HostnameChecker;
+//import sun.security.util.HostnameChecker;
 
 public class HostnameVerifierBag {
 
@@ -17,7 +17,7 @@ public class HostnameVerifierBag {
 		 * Checks if a given hostname matches the certificate of a given session.
 		 */
 		private boolean hostnameMatches(String hostname, SSLSession session) {
-			HostnameChecker checker = HostnameChecker.getInstance(HostnameChecker.TYPE_TLS);
+//			HostnameChecker checker = HostnameChecker.getInstance(HostnameChecker.TYPE_TLS);
 
 			boolean validCertificate = false;
 			
@@ -28,11 +28,11 @@ public class HostnameVerifierBag {
 								&& (peerCertificates[0] instanceof X509Certificate)) {
 					X509Certificate peerCertificate = (X509Certificate) peerCertificates[0];
 
-					checker.match(hostname, peerCertificate);
+//					checker.match(hostname, peerCertificate);
 					validCertificate = true;
 				}
-			} catch (CertificateException ex) {
-				validCertificate = false;
+//			} catch (CertificateException ex) {
+//				validCertificate = false;
 			} catch (SSLPeerUnverifiedException e) {
 				validCertificate = false;
 			}

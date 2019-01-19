@@ -7,6 +7,7 @@
 package net.mercadobitcoin.tradeapi.to;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import com.eclipsesource.json.JsonObject;
 
@@ -36,13 +37,13 @@ public class Ticker {
 	 * @param jsonObject Trade API JSON response
 	 */
 	public Ticker(JsonObject jsonObject) {
-		this.high = new BigDecimal(jsonObject.get("high").toString());
-		this.low = new BigDecimal(jsonObject.get("low").toString());
-		this.vol = new BigDecimal(jsonObject.get("vol").toString());
-		this.last = new BigDecimal(jsonObject.get("last").toString());
-		this.buy = new BigDecimal(jsonObject.get("buy").toString());
-		this.sell = new BigDecimal(jsonObject.get("sell").toString());
-		this.date = new BigDecimal(jsonObject.get("date").toString());
+		this.high = new BigDecimal(jsonObject.get("high").asString()).setScale(6, RoundingMode.FLOOR);
+		this.low = new BigDecimal(jsonObject.get("low").asString()).setScale(6, RoundingMode.FLOOR);
+		this.vol = new BigDecimal(jsonObject.get("vol").asString()).setScale(6, RoundingMode.FLOOR);
+		this.last = new BigDecimal(jsonObject.get("last").asString()).setScale(6, RoundingMode.FLOOR);
+		this.buy = new BigDecimal(jsonObject.get("buy").asString()).setScale(6, RoundingMode.FLOOR);
+		this.sell = new BigDecimal(jsonObject.get("sell").asString()).setScale(6, RoundingMode.FLOOR);
+//		this.date = new BigDecimal(jsonObject.get("date").toString());
 	}
 	
 	public BigDecimal getHigh() {

@@ -7,9 +7,12 @@
 package net.mercadobitcoin.tradeapi.to;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import com.eclipsesource.json.JsonValue;
 import net.mercadobitcoin.util.EnumValue;
 
 import com.eclipsesource.json.JsonArray;
@@ -26,28 +29,14 @@ public class Order extends TapiBase {
 	 * The Coin Pairs that a operation can deal with.
 	 */
 	public enum CoinPair implements EnumValue {
-		BTC_BRL("btc_brl"),
-		LTC_BRL("ltc_brl");
+		BRLBTC("BRLBTC"),
+		BRLLTC("BRLLTC"),
+		BRLBCH("BRLBCH"),
+		BRLXRP("BRLXRP");
+
 		private final String value;
 
 		private CoinPair(String value) {
-			this.value = value;
-		}
-
-		public String getValue() {
-			return this.value;
-		}
-	}
-	
-	/**
-	 * Defines the Type of the Order (Buy or Sell).
-	 */
-	public enum OrderType implements EnumValue {
-		BUY("buy"),
-		SELL("sell");
-		private final String value;
-
-		private OrderType(String value) {
 			this.value = value;
 		}
 
@@ -81,90 +70,105 @@ public class Order extends TapiBase {
 	public static final BigDecimal LITECOIN_24H_WITHDRAWAL_LIMIT = new BigDecimal(25);
 	public static final int LITECOIN_DEPOSIT_CONFIRMATIONS = 15;
 	
-	private CoinPair pair;
-	private OrderType type;
-	private BigDecimal volume;
-	private String price;
+	private CoinPair coin_pair;
+	private Integer type;
+	private BigDecimal quantity;
+	private String limit_price;
 	
 	private Long orderId;
-	private String status;
+	private Integer status;
 	private Integer created;
 	private List<Operation> operations;
 	
 	private Boolean flagSmall = false;
 
+    public Order(CoinPair pair, Long orderId) {
+        this.coin_pair = pair;
+        this.orderId = orderId;
+    }
 	
 	/**
 	 * Constructor. Request a new Order with the specified parameters.
 	 * @param pair The pair of coins of to be exchanged.
-	 * @param type Define if it is a 'buy' or 'sell' order.
 	 * @param volume The amount to be exchanged.
 	 * @param price The price the exchange should be dealt.
 	 */
-	public Order(CoinPair pair, OrderType type, BigDecimal volume, String price) {
-		this.price = price;
-		this.volume = volume;
-		this.pair = pair;
-		this.type = type;
-		
+	public Order(CoinPair pair, BigDecimal volume, String price) {
+		this.limit_price = price;
+		this.quantity = volume;
+		this.coin_pair = pair;
+
 		this.flagSmall = true;
 	}
 
 	/**
 	 * Constructor. Response from the Trade API, sent to the User.
 	 */
-	public Order(Long orderId, JsonObject jsonObject) {
-		this.orderId = orderId;
-		this.pair = CoinPair.valueOf(jsonObject.get("pair").asString().toUpperCase());
-		this.type = OrderType.valueOf(jsonObject.get("type").asString().toUpperCase());
-		this.volume = new BigDecimal(jsonObject.get("volume").asString());
-		this.price = jsonObject.get("price").asString();
-		this.status = jsonObject.get("status").asString();
-		this.created = Integer.valueOf(jsonObject.get("created").asString());
+	public Order(JsonObject jsonObject) {
+		this.orderId = jsonObject.get("order_id").asLong();
+
+		this.coin_pair = Optional.ofNullable(jsonObject.get("coin_pair"))
+				.map(t -> CoinPair.valueOf(t.asString().toUpperCase())).orElse(null);
+
+		this.type = Optional.ofNullable(jsonObject.get("order_type"))
+				.map(JsonValue::asInt).orElse(null);
+
+		this.quantity = new BigDecimal(jsonObject.get("quantity").asString()).setScale(6, RoundingMode.FLOOR);
+		this.limit_price = jsonObject.get("limit_price").asString();
+
+		this.status = Optional.ofNullable(jsonObject.get("status"))
+				.map(JsonValue::asInt).orElse(null);
+
+		// TODO: fazer parse de isOwner
+
+		//this.created = Integer.valueOf(jsonObject.get("created").asString());
 		
 		this.operations = new ArrayList<Operation>();
-		for (String operationId: jsonObject.get("operations").asObject().names()) {
-			if (operationId.matches("-?\\d+(\\.\\d+)?")) {
-				operations.add(new Operation(
-								Long.valueOf(operationId),
-								jsonObject.get("operations").asObject().get(operationId).asObject() ));
-			}
-		}
+
+		// TODO: fazer parse de operations
+
+//		for (String operationId: jsonObject.get("operations").asObject().names()) {
+//			if (operationId.matches("-?\\d+(\\.\\d+)?")) {
+//				operations.add(new Operation(
+//								Long.valueOf(operationId),
+//								jsonObject.get("operations").asObject().get(operationId).asObject() ));
+//			}
+//		}
 	}
 	
 	/**
 	 * Constructor. Response from the API, used by Orderbook.
 	 */
-	public Order(JsonArray jsonArray, CoinPair pair, OrderType type) {
-		this.price = jsonArray.get(0).toString();
-		this.volume = new BigDecimal(jsonArray.get(1).toString());
-		this.pair = pair;
+	public Order(JsonArray jsonArray, CoinPair pair, Integer type) {
+		this.limit_price = jsonArray.get(0).toString();
+		this.quantity = new BigDecimal(jsonArray.get(1).toString()).setScale(6, RoundingMode.FLOOR);
+		this.coin_pair = pair;
 		this.type = type;
 		
 		this.flagSmall = true;
 	}
 	
-	public CoinPair getPair() {
-		return pair;
+	public CoinPair getCoin_pair() {
+		return coin_pair;
 	}
 
-	public OrderType getType() {
+	public Integer getType() {
 		return type;
 	}
 
-	public BigDecimal getVolume() {
-		return volume;
+	public BigDecimal getQuantity() {
+		return quantity;
 	}
 
-	public String getPrice() {
-		return price;
+	public String getLimit_price() {
+		return limit_price;
 	}
 
 	public Long getOrderId() {
 		return orderId;
 	}
 
-	public String getStatus() {
+	public Integer getStatus() {
 		return status;
 	}
 
@@ -179,11 +183,11 @@ public class Order extends TapiBase {
 	@Override
 	public String toString() {
 		if (this.flagSmall == true) {
-			return "\nOrder [pair=" + pair + ", type=" + type + ", volume=" + volume
-					+ ", price=" + price + "]";
+			return "\nOrder [pair=" + coin_pair + ", type=" + type + ", volume=" + quantity
+					+ ", price=" + limit_price + "]";
 		} else {
-			return "Order [pair=" + pair + ", type=" + type + ", volume=" + volume
-					+ ", price=" + price + ", orderId=" + orderId + ", status="
+			return "Order [pair=" + coin_pair + ", type=" + type + ", volume=" + quantity
+					+ ", price=" + limit_price + ", orderId=" + orderId + ", status="
 					+ status + ", created=" + created + ", operations="
 					+ operations + "]";
 		}

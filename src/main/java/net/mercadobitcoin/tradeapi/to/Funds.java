@@ -8,6 +8,7 @@ package net.mercadobitcoin.tradeapi.to;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import com.eclipsesource.json.JsonObject;
 
@@ -34,12 +35,12 @@ public class Funds implements Serializable {
 	 * @param jsonObject Trade API JSON response
 	 */
 	public Funds(JsonObject jsonObject) {
-		this.brl = new BigDecimal(jsonObject.get("brl").asString());
-		this.btc = new BigDecimal(jsonObject.get("btc").asString());
-		this.ltc = new BigDecimal(jsonObject.get("ltc").asString());
-		this.brlWithOpenOrders = new BigDecimal(jsonObject.get("brl_with_open_orders").asString());
-		this.btcWithOpenOrders = new BigDecimal(jsonObject.get("btc_with_open_orders").asString());
-		this.ltcWithOpenOrders = new BigDecimal(jsonObject.get("ltc_with_open_orders").asString());
+		this.brl = new BigDecimal(jsonObject.get("brl").asString()).setScale(6, RoundingMode.FLOOR);
+		this.btc = new BigDecimal(jsonObject.get("btc").asString()).setScale(6, RoundingMode.FLOOR);
+		this.ltc = new BigDecimal(jsonObject.get("ltc").asString()).setScale(6, RoundingMode.FLOOR);
+		this.brlWithOpenOrders = new BigDecimal(jsonObject.get("brl_with_open_orders").asString()).setScale(6, RoundingMode.FLOOR);
+		this.btcWithOpenOrders = new BigDecimal(jsonObject.get("btc_with_open_orders").asString()).setScale(6, RoundingMode.FLOOR);
+		this.ltcWithOpenOrders = new BigDecimal(jsonObject.get("ltc_with_open_orders").asString()).setScale(6, RoundingMode.FLOOR);
 	}
 
 	public BigDecimal getBrl() {

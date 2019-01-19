@@ -9,7 +9,6 @@ package net.mercadobitcoin.tradeapi.to;
 import java.util.Arrays;
 
 import net.mercadobitcoin.tradeapi.to.Order.CoinPair;
-import net.mercadobitcoin.tradeapi.to.Order.OrderType;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
@@ -31,13 +30,13 @@ public class Orderbook {
 		JsonArray asking = jsonObject.get("asks").asArray();
 		asks = new Order[asking.size()];
 		for (int i = 0; i < asking.size(); i++) {
-			asks[i] = new Order(asking.get(i).asArray(), pair, OrderType.SELL);
+			asks[i] = new Order(asking.get(i).asArray(), pair, 2);
 		}
 		
 		JsonArray bidding = jsonObject.get("bids").asArray();
 		bids = new Order[bidding.size()];
 		for (int i = 0; i < bidding.size(); i++) {
-			bids[i] = new Order(bidding.get(i).asArray(), pair, OrderType.BUY);
+			bids[i] = new Order(bidding.get(i).asArray(), pair, 1);
 		}
 	}
 

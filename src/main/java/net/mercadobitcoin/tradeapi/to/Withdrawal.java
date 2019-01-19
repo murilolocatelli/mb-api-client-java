@@ -7,6 +7,7 @@
 package net.mercadobitcoin.tradeapi.to;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import net.mercadobitcoin.tradeapi.to.Order.CoinPair;
 
@@ -37,7 +38,7 @@ public class Withdrawal extends TapiBase {
 	public Withdrawal(JsonObject jsonObject, CoinPair pair) {
 		JsonObject jsonWithdrawal = jsonObject.get("withdrawal").asObject();
 		this.withdrawalId = Long.valueOf(jsonWithdrawal.getString("id", "0"));
-		this.volume = new BigDecimal(jsonWithdrawal.getString("volume", "0"));
+		this.volume = new BigDecimal(jsonWithdrawal.getString("volume", "0")).setScale(6, RoundingMode.FLOOR);
 		this.status = Long.valueOf(jsonWithdrawal.getString("status", "0")).intValue();
 		this.statusDescrition = jsonWithdrawal.getString("status_description", "");
 		this.transaction = jsonWithdrawal.getString("transaction", "");
